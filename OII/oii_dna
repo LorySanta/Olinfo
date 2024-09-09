@@ -1,0 +1,91 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+bool test(string T);
+
+string analizza(int N) {
+    //binarysearcho il numero di 1. 
+    int max1 = 0;
+    for (int i = 1 << ((int)(log2(N) -2)); i > 0; i/=2) {
+
+        string ausiliare = "";
+        for (int j = 0; j<(i + max1); j++) ausiliare = ausiliare + "1";
+
+        if (test(ausiliare)) max1 = max1 + i;
+    }
+
+    //inizio con ans = "11111111...111"
+    string ans = "";
+    int ans_size = max1;
+    for (int i = 0; i<max1; i++) ans = ans + "1";
+
+    int appesi1 = 0;
+    bool fine = false;
+    string finecorrente = "0";
+    int curr_size = 1;
+
+    while (true) {
+        //se finisce bene
+        if (ans_size == N) break;
+        
+        
+        //finchè devo trovare la fine
+        if (!fine) {
+            string tentativo = ans + finecorrente;
+            bool prova = test(tentativo);
+
+            if (prova) {
+                ans = ans + finecorrente;
+                ans_size = ans_size + curr_size;
+                finecorrente = "0";
+                curr_size = 1;
+                appesi1 = 0;
+                continue;
+            }
+
+            else if (!prova && appesi1 <= max1 ) {
+                finecorrente = "1" + finecorrente;
+                curr_size = curr_size + 1;
+                appesi1 += 1;
+                continue;
+            }
+
+            else if (!prova && (appesi1 > max1 )) {
+                //abbiamo finito:
+                string trovafine = "";
+                int size_trovafine = 0;
+                bool finito = false;
+                while (!finito) {
+                    string aus = trovafine + "1";
+                    string temp = ans + aus;
+                    finito = !test(temp);
+
+                    if (finito) break;
+                    trovafine = aus;
+                    size_trovafine += 1;
+                }
+
+                ans = ans + trovafine;
+                ans_size += size_trovafine;
+                fine = true;
+                continue;
+            }
+
+        }
+
+        //appendo all'inizio uno zero
+        string tentativo_inizio_0 = "0" + ans;
+        bool prova_inizio_0 = test(tentativo_inizio_0);
+        if (prova_inizio_0) {
+            ans = tentativo_inizio_0;
+            ans_size++;
+            continue;
+        }
+        if (!prova_inizio_0) {
+            ans = "1" + ans;
+            ans_size++;
+            continue;
+        }
+    }
+    return ans;
+}
